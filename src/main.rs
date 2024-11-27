@@ -1,6 +1,9 @@
 use std::env::var;
 
-use poise::{serenity_prelude as serenity, FrameworkContext};
+use poise::{
+    serenity_prelude::{self as serenity},
+    FrameworkContext,
+};
 
 // Types used by all command functions
 type Error = Box<dyn std::error::Error + Send + Sync>;
@@ -28,6 +31,7 @@ async fn main() {
         .build();
 
     let client = serenity::ClientBuilder::new(token, intents)
+        .event_handler(EvtHandler)
         .framework(framework)
         .await;
 
@@ -40,4 +44,17 @@ async fn event_handler(
 ) -> Result<(), Error> {
     println!("{}", event.snake_case_name());
     Ok(())
+}
+
+pub struct EvtHandler;
+
+#[serenity::async_trait]
+impl serenity::EventHandler for EvtHandler {
+    async fn shard_stage_update(
+        &self,
+        _ctx: serenity::Context,
+        _evt: serenity::ShardStageUpdateEvent,
+    ) {
+        println!("shard_stage_update")
+    }
 }
